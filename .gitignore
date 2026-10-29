@@ -3,6 +3,8 @@ build/
 *.user
 *.swp
 media/screen/*.mkv
+media/resolve_ingest/*
+!media/resolve_ingest/.gitkeep
 media/facecam/*
 !media/facecam/.gitkeep
 media/animations/*
