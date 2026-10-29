@@ -2,6 +2,7 @@ build/
 .cache/
 *.user
 *.swp
+.yt-private/
 media/screen/*.mkv
 media/resolve_ingest/*
 !media/resolve_ingest/.gitkeep
