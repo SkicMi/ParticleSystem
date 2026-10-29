@@ -19,3 +19,6 @@ FetchContent_MakeAvailable(raylib)
 add_executable(YTParticleSystem main.cpp)
 target_link_libraries(YTParticleSystem PRIVATE raylib)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(YTParticleSystem PRIVATE -Wall -Wextra -Wpedantic)
+endif()
