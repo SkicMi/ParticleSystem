@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+python3 - <<'PY'
+import json
+import base64
+import configparser
+import hashlib
+import websocket
+
+try:
+    ws = websocket.create_connection("ws://127.0.0.1:4455", timeout=3)
+    hello = json.loads(ws.recv())
+    auth_data = hello["d"]["authentication"]
+    config = configparser.ConfigParser()
+    config.read("/home/danijel/.config/obs-studio/global.ini")
+    password = config["OBSWebSocket"]["ServerPassword"]
+    secret = base64.b64encode(hashlib.sha256((password + auth_data["salt"]).encode()).digest()).decode()
+    auth = base64.b64encode(hashlib.sha256((secret + auth_data["challenge"]).encode()).digest()).decode()
+    ws.send(json.dumps({"op": 1, "d": {"rpcVersion": 1, "authentication": auth, "eventSubscriptions": 0}}))
+    ws.recv()
+    ws.send(json.dumps({"op": 6, "d": {"requestType": "StopRecord", "requestId": "erecord", "requestData": {}}}))
+    result = json.loads(ws.recv())
+    if not result["d"]["requestStatus"]["result"]:
+        raise RuntimeError(result["d"]["requestStatus"].get("comment", "OBS rejected StopRecord"))
+    print("OBS recording stopped")
+except Exception as exc:
+    raise SystemExit(f"OBS nije dostupan: {exc}")
+PY
